@@ -1,0 +1,1271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aetherium Archives — A Poetic Experience</title>
+  <meta name="description" content="An immersive, industry-level poetic web application with a dynamic cosmic background, audio-reactive visuals, and a crystalline UI." />
+  <meta property="og:title" content="Aetherium Archives" />
+  <meta property="og:description" content="Experience poetry in a living, breathing digital environment." />
+  <meta name="theme-color" content="#03041a" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+  <!-- External Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" defer></script>
+
+  <!--
+  ==================================================================
+  AETHERIUM ARCHIVES - STYLESHEET
+  Author: Gemini
+  Version: 2.1 (Gemini API Integration)
+  Description: A fully bespoke, high-fidelity stylesheet for an
+               immersive poetry reading experience. This is not
+               a simple theme; it's the visual soul of the app.
+  ==================================================================
+  -->
+  <style>
+    :root {
+      --bg-deep-space: #03041a;
+      --bg-nebula: #11122c;
+      --glass-fill: rgba(10, 12, 40, 0.4);
+      --glass-stroke: rgba(124, 133, 225, 0.2);
+      --text-primary: #e1e3ff;
+      --text-secondary: #a7abdd;
+      --accent-primary-hue: 225; /* Default: Blue/Purple */
+      --accent-primary: hsl(var(--accent-primary-hue), 100%, 80%);
+      --accent-glow: hsla(var(--accent-primary-hue), 100%, 80%, 0.5);
+      --accent-secondary: #00f2ea;
+      --font-display: 'Orbitron', sans-serif;
+      --font-serif: 'Playfair Display', serif;
+      --max-width: 1200px;
+    }
+
+    /*=================================
+      1. Foundational & Preloader Styles
+    =================================*/
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    body {
+      margin: 0;
+      background-color: var(--bg-deep-space);
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      overscroll-behavior: none;
+    }
+
+    .preloader {
+      position: fixed;
+      inset: 0;
+      background-color: var(--bg-deep-space);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preloader-logo {
+      width: 80px;
+      height: 80px;
+      border: 4px solid var(--glass-stroke);
+      border-radius: 50%;
+      position: relative;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    .preloader-logo::before, .preloader-logo::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 4px solid transparent;
+    }
+    .preloader-logo::before {
+      border-top-color: var(--accent-primary);
+      animation: rotate 2s linear infinite;
+    }
+    .preloader-logo::after {
+      border-bottom-color: var(--accent-secondary);
+      animation: rotate 3s linear infinite reverse;
+    }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulse { 50% { transform: scale(0.9); } }
+
+    /*=================================
+      2. Background & Ambiance
+    =================================*/
+    .cosmic-background {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    #starfield-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .aurora-layer {
+        position: absolute;
+        inset: 0;
+        opacity: 0.4;
+        mix-blend-mode: screen;
+        background:
+            radial-gradient(ellipse at 50% 0%, hsla(var(--accent-primary-hue), 100%, 80%, 0.3) 0%, transparent 40%),
+            radial-gradient(ellipse at 30% 0%, hsla(180, 100%, 70%, 0.2) 0%, transparent 35%),
+            radial-gradient(ellipse at 70% 0%, hsla(300, 100%, 80%, 0.2) 0%, transparent 35%);
+        animation: aurora-sway 25s ease-in-out infinite alternate;
+    }
+    @keyframes aurora-sway {
+      from { transform: skewX(-15deg) translateX(-10%); }
+      to { transform: skewX(15deg) translateX(10%); }
+    }
+
+
+    /*=================================
+      3. Main Layout & Structure
+    =================================*/
+    #aetherium-archives {
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      perspective: 1000px;
+      position: relative;
+      z-index: 1;
+    }
+    .wrap {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 32px;
+    }
+
+    /*=================================
+      4. Hero Section
+    =================================*/
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 32px;
+      position: relative;
+    }
+    .hero-title {
+      font-family: var(--font-serif);
+      font-size: clamp(3rem, 10vw, 6rem);
+      font-weight: 700;
+      margin: 0;
+      color: white;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-glow), 0 0 40px rgba(0,0,0,0.5);
+      line-height: 1.1;
+    }
+    .hero-tagline {
+      font-size: clamp(1rem, 2vw, 1.2rem);
+      margin: 24px 0 40px;
+      color: var(--text-secondary);
+      max-width: 600px;
+      line-height: 1.6;
+      text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+    .hero-cta-group { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; justify-content: center; }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.7;
+    }
+    .scroll-indicator::after {
+      content: '';
+      width: 2px;
+      height: 40px;
+      background: linear-gradient(to bottom, var(--text-secondary), transparent);
+      animation: scroll-flow 2s infinite;
+    }
+    @keyframes scroll-flow {
+      0% { transform: translateY(-10px); opacity: 0; }
+      50% { opacity: 1; }
+      100% { transform: translateY(10px); opacity: 0; }
+    }
+
+
+    /*=================================
+      5. Shared UI Components (Buttons, Glass)
+    =================================*/
+    .glass-ui {
+      background: var(--glass-fill);
+      backdrop-filter: blur(12px) saturate(150%);
+      -webkit-backdrop-filter: blur(12px) saturate(150%);
+      border: 1px solid var(--glass-stroke);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      color: var(--text-primary);
+      z-index: 1;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(45deg, var(--accent-primary), var(--accent-secondary));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      z-index: -1;
+    }
+    .btn:hover:not(:disabled) {
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 20px var(--accent-glow);
+      color: white;
+      transform: translateY(-2px) scale(1.02);
+    }
+    .btn:hover:not(:disabled)::before { opacity: 0.15; }
+    .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+    }
+    .btn.loading::after {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: 50%;
+        margin-left: -10px;
+        margin-top: -10px;
+        border: 2px solid var(--text-primary);
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: rotate 0.8s linear infinite;
+    }
+    .btn.loading {
+        color: transparent;
+    }
+
+
+    /*=================================
+      6. Library & Poem Grid
+    =================================*/
+    .library { padding: 100px 0; }
+    .library-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 40px;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .library-title { font-size: 2.5rem; margin: 0; font-family: var(--font-serif); }
+    .library-controls { display: flex; gap: 16px; }
+    .search-input, .filter-select {
+      background: transparent;
+      border: 1px solid var(--glass-stroke);
+      border-radius: 8px;
+      padding: 10px 16px;
+      color: var(--text-primary);
+      font-family: var(--font-display);
+      min-width: 200px;
+    }
+    .filter-select { appearance: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23a7abdd' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E") no-repeat right 16px center; }
+
+    .poem-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+    }
+
+    .poem-card {
+      border-radius: 12px;
+      padding: 24px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+    .poem-card-title { font-size: 1.5rem; margin: 0 0 8px; font-family: var(--font-serif); }
+    .poem-card-excerpt { margin: 0 0 16px; color: var(--text-secondary); font-size: 0.9rem; }
+    .poem-card-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .poem-card-tag {
+      background: rgba(124, 133, 225, 0.1);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .poem-card .shine-effect {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: radial-gradient(ellipse at var(--mx) var(--my), rgba(255,255,255,0.2) 0%, transparent 40%);
+        opacity: 0;
+        transition: opacity 0.3s;
+        pointer-events: none;
+    }
+    .poem-card:hover .shine-effect { opacity: 1; }
+
+    /*=================================
+      7. Reader & Composer Modals
+    =================================*/
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(3, 4, 26, 0.7);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.5s, visibility 0.5s;
+    }
+    .modal-overlay.open { opacity: 1; visibility: visible; }
+
+    .modal-container {
+      width: min(1000px, 95%);
+      height: min(800px, 90%);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.95);
+      transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .modal-overlay.open .modal-container { transform: scale(1); }
+    
+    .modal-header { padding: 20px 32px; flex-shrink: 0; display: flex; justify-content: space-between; align-items: center; }
+    .modal-content { flex-grow: 1; display: flex; gap: 24px; padding: 0 32px 20px; overflow: hidden; }
+    .modal-main { flex-grow: 1; overflow-y: auto; padding-right: 16px; }
+    .modal-sidebar { width: 240px; flex-shrink: 0; overflow-y: auto; }
+    .modal-footer { padding: 20px 32px; border-top: 1px solid var(--glass-stroke); display: flex; align-items: center; gap: 20px; }
+
+    .reader-title { font-family: var(--font-serif); font-size: 2.2rem; margin: 0 0 4px; }
+    .reader-meta { font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 24px; }
+    .poem-body { font-size: 1.25rem; line-height: 2; color: var(--text-primary); }
+    .poem-body .line { display: block; padding: 4px 0; }
+
+    .sidebar-group { margin-bottom: 24px; }
+    .sidebar-title { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-secondary); margin-bottom: 12px; }
+    .sidebar-controls { display: flex; flex-direction: column; gap: 10px; }
+    
+    #gemini-analysis-container { min-height: 100px; }
+    #gemini-analysis-container p { margin: 4px 0 12px; font-size: 0.9rem; }
+    #gemini-analysis-container strong { color: var(--text-primary); }
+    #gemini-analysis-container ul { padding-left: 20px; margin: 4px 0 12px; }
+
+    .audio-player { flex-grow: 1; display: flex; align-items: center; gap: 16px; }
+    .audio-time { font-size: 0.8rem; color: var(--text-secondary); min-width: 40px; }
+    .progress-bar-wrapper { flex-grow: 1; height: 8px; background: rgba(0,0,0,0.2); border-radius: 4px; cursor: pointer; position: relative; }
+    .progress-bar-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)); border-radius: 4px; }
+    .audio-visualizer { position: absolute; bottom: 100%; left: 0; width: 100%; height: 30px; display: flex; align-items: flex-end; gap: 2px; pointer-events: none;}
+    .visualizer-bar { flex-grow: 1; background-color: var(--accent-primary); transition: height 0.1s; }
+
+    /* Composer Specific Styles */
+    .composer-main { display: flex; flex-direction: column; gap: 16px; height: 100%; }
+    .composer-input {
+        width: 100%;
+        background: transparent;
+        border: 1px solid var(--glass-stroke);
+        border-radius: 8px;
+        padding: 12px 16px;
+        color: var(--text-primary);
+        font-family: var(--font-display);
+    }
+    .composer-textarea {
+        flex-grow: 1;
+        resize: none;
+        line-height: 1.8;
+    }
+
+
+    /*=================================
+      8. Helper & Utility Classes
+    =================================*/
+    .highlight-match { background: hsla(var(--accent-primary-hue), 100%, 80%, 0.2); border-radius: 4px; }
+
+    #notification-bar {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translate(-50%, 150%);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      z-index: 5000;
+      transition: transform 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+
+    #theme-customizer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 2000;
+      padding: 12px;
+      border-radius: 12px;
+    }
+    .color-swatches { display: flex; gap: 10px; }
+    .color-swatch { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid var(--glass-stroke); transition: transform 0.2s; }
+    .color-swatch:hover { transform: scale(1.1); }
+
+    /* For accessibility */
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+    
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Layers -->
+  <div class="cosmic-background">
+    <canvas id="starfield-canvas"></canvas>
+    <div class="aurora-layer"></div>
+  </div>
+
+  <!-- App Preloader -->
+  <div class="preloader">
+    <div class="preloader-logo"></div>
+  </div>
+  
+  <!-- Main App Container -->
+  <div id="aetherium-archives">
+    
+    <!-- Hero Section -->
+    <header class="hero" role="banner">
+      <h1 class="hero-title" data-content="Aetherium Archives">Aetherium Archives</h1>
+      <p class="hero-tagline">A curated collection of Hindi-Urdu shayari and English poems, suspended in a timeless digital cosmos. Find a quiet corner and let the words resonate.</p>
+      <div class="hero-cta-group">
+        <button class="btn glass-ui" id="explore-library-btn">Explore The Library</button>
+        <button class="btn glass-ui" id="compose-btn">Compose A Poem</button>
+      </div>
+      <div class="scroll-indicator">
+        <span>Discover</span>
+      </div>
+    </header>
+    
+    <!-- Library Section -->
+    <main class="wrap library" id="library-section" aria-labelledby="library-title">
+      <div class="library-header">
+        <h2 id="library-title" class="library-title">The Collection</h2>
+        <div class="library-controls">
+          <input id="search-input" class="search-input glass-ui" type="search" placeholder="Search the archives...">
+          <select id="filter-tags" class="filter-select glass-ui">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+      </div>
+      <div id="poem-grid" class="poem-grid" aria-live="polite"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="text-align:center;padding:40px;color:var(--text-secondary);font-size:0.8rem;">
+      Crafted within the digital nebula. All rights reserved where applicable.
+    </footer>
+
+  </div>
+
+  <!-- Reader Modal -->
+  <div class="modal-overlay" id="reader-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-container glass-ui">
+      <header class="modal-header">
+        <button class="btn glass-ui" id="close-reader-btn">Close</button>
+      </header>
+      <div class="modal-content">
+        <main class="modal-main">
+          <h3 id="reader-title" class="reader-title">Poem Title</h3>
+          <p id="reader-meta" class="reader-meta">Tags • Length</p>
+          <article id="poem-body" class="poem-body" tabindex="0"></article>
+        </main>
+        <aside class="modal-sidebar">
+          <div class="sidebar-group">
+            <h4 class="sidebar-title">Playback Controls</h4>
+            <div class="sidebar-controls">
+                <button id="play-pause-btn" class="btn glass-ui">Play Ambience</button>
+            </div>
+          </div>
+          <div class="sidebar-group">
+            <h4 class="sidebar-title">Typography</h4>
+            <div class="sidebar-controls" style="flex-direction: row;">
+              <button id="decrease-font-btn" class="btn glass-ui" style="flex: 1;">A-</button>
+              <button id="increase-font-btn" class="btn glass-ui" style="flex: 1;">A+</button>
+            </div>
+          </div>
+          <div class="sidebar-group">
+            <h4 class="sidebar-title">Gemini Analysis Core</h4>
+            <div class="sidebar-controls">
+              <button id="analyze-poem-btn" class="btn glass-ui">✨ Analyze with Gemini</button>
+            </div>
+            <div id="gemini-analysis-container"></div>
+          </div>
+          <div class="sidebar-group">
+            <h4 class="sidebar-title">Export & Share</h4>
+            <div class="sidebar-controls">
+              <button id="export-pdf-btn" class="btn glass-ui">Export to PDF</button>
+              <button id="copy-link-btn" class="btn glass-ui">Copy Link</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+      <footer class="modal-footer">
+          <div class="audio-player">
+              <div id="audio-visualizer" class="audio-visualizer"></div>
+              <div class="audio-time" id="audio-time-current">0:00</div>
+              <div class="progress-bar-wrapper" id="progress-bar-wrapper">
+                  <div class="progress-bar-fill" id="progress-bar-fill"></div>
+              </div>
+              <div class="audio-time" id="audio-time-duration">0:00</div>
+          </div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Compose Modal -->
+  <div class="modal-overlay" id="compose-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-container glass-ui">
+        <header class="modal-header">
+            <h3 class="reader-title">Celestial Forge</h3>
+            <button class="btn glass-ui" id="close-compose-btn">Close</button>
+        </header>
+        <div class="modal-content">
+            <main class="modal-main composer-main">
+                <input id="compose-title-input" class="composer-input" placeholder="Enter Poem Title...">
+                <textarea id="compose-body-textarea" class="composer-input composer-textarea" placeholder="Write your poem here, or generate one below..."></textarea>
+            </main>
+            <aside class="modal-sidebar">
+                <div class="sidebar-group">
+                    <h4 class="sidebar-title">✨ AI Generation</h4>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin: -8px 0 12px;">Provide a theme, feeling, or idea.</p>
+                    <div class="sidebar-controls">
+                        <input id="gemini-prompt-input" class="composer-input" placeholder="e.g., a city after rain...">
+                        <button id="generate-poem-btn" class="btn glass-ui">✨ Generate Poem</button>
+                    </div>
+                </div>
+                <div class="sidebar-group">
+                    <h4 class="sidebar-title">Actions</h4>
+                    <div class="sidebar-controls">
+                        <button id="save-poem-btn" class="btn glass-ui">Save to Archives</button>
+                    </div>
+                </div>
+            </aside>
+        </div>
+    </div>
+  </div>
+  
+  <!-- Global UI Elements -->
+  <div id="notification-bar" class="glass-ui"></div>
+  <div id="theme-customizer" class="glass-ui">
+      <div class="color-swatches">
+          <div class="color-swatch" style="background-color: #a3b8ff;" data-hue="225"></div>
+          <div class="color-swatch" style="background-color: #ff94e0;" data-hue="320"></div>
+          <div class="color-swatch" style="background-color: #8aff8a;" data-hue="120"></div>
+          <div class="color-swatch" style="background-color: #ffca80;" data-hue="35"></div>
+      </div>
+  </div>
+
+  <!--
+  ==================================================================
+  AETHERIUM ARCHIVES - JAVASCRIPT LOGIC
+  Author: Gemini
+  Version: 2.1 (Gemini API Integration)
+  Description: The engine that brings the archives to life.
+               Handles animations, state, audio, interactions,
+               and generative AI features.
+  ==================================================================
+  -->
+  <script>
+  // Wait for the DOM to be ready before executing any script
+  document.addEventListener('DOMContentLoaded', () => {
+    'use strict';
+
+    //=================================
+    // 1. Data & State Management
+    //=================================
+    let POEMS = [
+        { id: 'p1', title: 'The Lonely Room', tags: ['sad','hostel','library'], lines: ['The shortest night will come to stay,','with her beside me, shadows sway.','Whatever she carries, whatever she hides,','her silence still anchors the restless tides.'] },
+        { id: 'p2', title: 'Ek Aakhri Khat', tags: ['shayari','urdu','taarif'], lines: ['तुम्हारे नाम से जुड़ा हुआ मेरा हर एक वक़्त है,','किताबों के किनारों पर रखी एक पुरानी रूह की तरह।','कह नहीं पाता मगर हर पन्ना तुम्हारी खुशबू बताता है।'] },
+        { id: 'p3', title: 'The Missed Call', tags: ['sad','phone','memory'], lines: ['A missed call, an amber light —','the world folds into the margin of my pocket.','I replay the small silence like a hymn.'] }
+    ];
+
+    const TRACKS = [{ id: 't1', title: 'Cosmic Drift', src: ['https://assets.codepen.io/217233/lofi1.mp3'] }];
+
+    let state = {
+      sound: null,
+      isPlaying: false,
+      activePoem: null,
+      fontSize: 1.25,
+      isReaderOpen: false,
+      isComposerOpen: false,
+      audioContext: null,
+      analyser: null,
+      audioSource: null
+    };
+
+    //=================================
+    // 2. DOM Element Selectors
+    //=================================
+    const DOMElements = {
+        preloader: document.querySelector('.preloader'),
+        mainContainer: document.getElementById('aetherium-archives'),
+        starfieldCanvas: document.getElementById('starfield-canvas'),
+        poemGrid: document.getElementById('poem-grid'),
+        searchInput: document.getElementById('search-input'),
+        filterTags: document.getElementById('filter-tags'),
+        readerModal: document.getElementById('reader-modal'),
+        closeReaderBtn: document.getElementById('close-reader-btn'),
+        readerTitle: document.getElementById('reader-title'),
+        readerMeta: document.getElementById('reader-meta'),
+        poemBody: document.getElementById('poem-body'),
+        playPauseBtn: document.getElementById('play-pause-btn'),
+        increaseFontBtn: document.getElementById('increase-font-btn'),
+        decreaseFontBtn: document.getElementById('decrease-font-btn'),
+        exportPdfBtn: document.getElementById('export-pdf-btn'),
+        copyLinkBtn: document.getElementById('copy-link-btn'),
+        progressBarWrapper: document.getElementById('progress-bar-wrapper'),
+        progressBarFill: document.getElementById('progress-bar-fill'),
+        timeCurrent: document.getElementById('audio-time-current'),
+        timeDuration: document.getElementById('audio-time-duration'),
+        notificationBar: document.getElementById('notification-bar'),
+        themeSwatches: document.querySelectorAll('.color-swatch'),
+        exploreLibraryBtn: document.getElementById('explore-library-btn'),
+        audioVisualizer: document.getElementById('audio-visualizer'),
+        composeBtn: document.getElementById('compose-btn'),
+        composeModal: document.getElementById('compose-modal'),
+        closeComposeBtn: document.getElementById('close-compose-btn'),
+        geminiPromptInput: document.getElementById('gemini-prompt-input'),
+        generatePoemBtn: document.getElementById('generate-poem-btn'),
+        composeTitleInput: document.getElementById('compose-title-input'),
+        composeBodyTextarea: document.getElementById('compose-body-textarea'),
+        savePoemBtn: document.getElementById('save-poem-btn'),
+        analyzePoemBtn: document.getElementById('analyze-poem-btn'),
+        geminiAnalysisContainer: document.getElementById('gemini-analysis-container')
+    };
+
+    //=================================
+    // 3. Core Application Logic
+    //=================================
+
+    /**
+     * Initializes the entire application.
+     */
+    function initialize() {
+      gsap.to(DOMElements.preloader, { opacity: 0, duration: 0.5, delay: 1, onComplete: () => DOMElements.preloader.style.display = 'none' });
+      
+      loadUserPoems();
+      animateCosmicBackground();
+      populateTagFilter();
+      renderPoemGrid(POEMS);
+      initializeEventListeners();
+      initializeAnimations();
+      setupAudioVisualizer();
+    }
+
+    /**
+     * Sets up all event listeners for the application.
+     */
+    function initializeEventListeners() {
+      DOMElements.exploreLibraryBtn.addEventListener('click', () => {
+        document.getElementById('library-section').scrollIntoView({ behavior: 'smooth' });
+      });
+      DOMElements.searchInput.addEventListener('input', handleFilterChange);
+      DOMElements.filterTags.addEventListener('change', handleFilterChange);
+      
+      // Reader listeners
+      DOMElements.closeReaderBtn.addEventListener('click', closeReader);
+      DOMElements.playPauseBtn.addEventListener('click', toggleAudio);
+      DOMElements.increaseFontBtn.addEventListener('click', () => adjustFontSize(0.1));
+      DOMElements.decreaseFontBtn.addEventListener('click', () => adjustFontSize(-0.1));
+      DOMElements.exportPdfBtn.addEventListener('click', exportPoemToPDF);
+      DOMElements.copyLinkBtn.addEventListener('click', copyPoemLink);
+      DOMElements.progressBarWrapper.addEventListener('click', seekAudio);
+      
+      // Composer listeners
+      DOMElements.composeBtn.addEventListener('click', openComposer);
+      DOMElements.closeComposeBtn.addEventListener('click', closeComposer);
+      DOMElements.generatePoemBtn.addEventListener('click', handlePoemGeneration);
+      DOMElements.savePoemBtn.addEventListener('click', saveComposedPoem);
+
+      // Gemini feature listeners
+      DOMElements.analyzePoemBtn.addEventListener('click', handlePoemAnalysis);
+      
+      // Global listeners
+      DOMElements.themeSwatches.forEach(swatch => swatch.addEventListener('click', changeThemeColor));
+      document.addEventListener('keydown', handleGlobalKeys);
+    }
+    
+    /**
+     * Sets up the initial GSAP animations for page load.
+     */
+    function initializeAnimations() {
+        const heroTimeline = gsap.timeline({ defaults: { ease: 'power3.out' }});
+        heroTimeline
+            .from('.hero-title', { opacity: 0, y: 30, duration: 1, delay: 1.2 })
+            .from('.hero-tagline', { opacity: 0, y: 20, duration: 0.8 }, "-=0.6")
+            .from('.hero-cta-group .btn', { opacity: 0, y: 20, duration: 0.5, stagger: 0.1 }, "-=0.5")
+            .from('.scroll-indicator', { opacity: 0, y: 10, duration: 1 }, "-=0.2");
+
+        // Card hover animations are handled via event listeners for performance
+        DOMElements.poemGrid.addEventListener('mousemove', (e) => {
+            const card = e.target.closest('.poem-card');
+            if (!card) return;
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const shine = card.querySelector('.shine-effect');
+            if(shine) {
+                shine.style.setProperty('--mx', `${x}px`);
+                shine.style.setProperty('--my', `${y}px`);
+            }
+        });
+    }
+
+    //=================================
+    // 4. Rendering & UI Updates
+    //=================================
+    
+    /**
+     * Renders the grid of poem cards.
+     * @param {Array} poemsToRender - The array of poem objects to display.
+     */
+    function renderPoemGrid(poemsToRender) {
+      DOMElements.poemGrid.innerHTML = ''; // Clear existing grid
+      poemsToRender.forEach(poem => {
+        const card = document.createElement('article');
+        card.className = 'poem-card glass-ui';
+        card.tabIndex = 0;
+        card.dataset.poemId = poem.id;
+        
+        card.innerHTML = `
+          <div class="shine-effect"></div>
+          <h3 class="poem-card-title">${escapeHTML(poem.title)}</h3>
+          <p class="poem-card-excerpt">${escapeHTML(poem.lines[0])}...</p>
+          <div class="poem-card-tags">
+            ${poem.tags.map(tag => `<span class="poem-card-tag">${escapeHTML(tag)}</span>`).join('')}
+          </div>
+        `;
+        
+        card.addEventListener('click', () => openReader(poem));
+        card.addEventListener('keydown', (e) => { if (e.key === 'Enter') openReader(poem); });
+        
+        DOMElements.poemGrid.appendChild(card);
+      });
+      gsap.from('.poem-card', { opacity: 0, y: 30, duration: 0.5, stagger: 0.05, ease: 'power3.out' });
+    }
+
+    /**
+     * Populates the tag filter dropdown with unique tags from all poems.
+     */
+    function populateTagFilter() {
+      DOMElements.filterTags.innerHTML = '<option value="">All Categories</option>';
+      const allTags = new Set(POEMS.flatMap(p => p.tags));
+      allTags.forEach(tag => {
+        const option = document.createElement('option');
+        option.value = tag;
+        option.textContent = tag;
+        DOMElements.filterTags.appendChild(option);
+      });
+    }
+
+    /**
+     * Handles changes in search or filter inputs and re-renders the grid.
+     */
+    function handleFilterChange() {
+      const query = DOMElements.searchInput.value.toLowerCase().trim();
+      const selectedTag = DOMElements.filterTags.value;
+
+      const filteredPoems = POEMS.filter(poem => {
+        const tagMatch = !selectedTag || poem.tags.includes(selectedTag);
+        const queryMatch = !query ||
+          poem.title.toLowerCase().includes(query) ||
+          poem.lines.join(' ').toLowerCase().includes(query) ||
+          poem.tags.join(' ').toLowerCase().includes(query);
+        return tagMatch && queryMatch;
+      });
+
+      renderPoemGrid(filteredPoems);
+      
+      if (query) {
+          highlightSearchResults(query);
+      }
+    }
+
+    /**
+     * Highlights search query matches in the rendered poem cards.
+     * @param {string} query - The search query.
+     */
+    function highlightSearchResults(query) {
+        const cards = DOMElements.poemGrid.querySelectorAll('.poem-card-title, .poem-card-excerpt');
+        cards.forEach(el => {
+            const regex = new RegExp(`(${query})`, 'gi');
+            el.innerHTML = el.textContent.replace(regex, `<span class="highlight-match">$1</span>`);
+        });
+    }
+
+
+    //=================================
+    // 5. Reader & Composer Modal Logic
+    //=================================
+
+    /**
+     * Opens the reader modal with the selected poem's content.
+     * @param {object} poem - The poem object to display.
+     */
+    function openReader(poem) {
+      state.activePoem = poem;
+      state.isReaderOpen = true;
+
+      DOMElements.readerTitle.textContent = poem.title;
+      DOMElements.readerMeta.textContent = `${poem.tags.join(' • ')} • ${poem.lines.length} lines`;
+      DOMElements.poemBody.innerHTML = poem.lines.map(line => `<span class="line">${escapeHTML(line)}</span>`).join('');
+      DOMElements.geminiAnalysisContainer.innerHTML = ''; // Clear previous analysis
+      
+      adjustFontSize(0); // Apply current font size
+
+      DOMElements.readerModal.classList.add('open');
+      DOMElements.mainContainer.setAttribute('aria-hidden', 'true');
+    }
+
+    /**
+     * Closes the reader modal.
+     */
+    function closeReader() {
+      state.isReaderOpen = false;
+      DOMElements.readerModal.classList.remove('open');
+      DOMElements.mainContainer.setAttribute('aria-hidden', 'false');
+    }
+
+    /** Opens the composer modal. */
+    function openComposer() {
+        state.isComposerOpen = true;
+        DOMElements.composeModal.classList.add('open');
+        DOMElements.composeTitleInput.value = '';
+        DOMElements.composeBodyTextarea.value = '';
+        DOMElements.geminiPromptInput.value = '';
+        DOMElements.mainContainer.setAttribute('aria-hidden', 'true');
+    }
+
+    /** Closes the composer modal. */
+    function closeComposer() {
+        state.isComposerOpen = false;
+        DOMElements.composeModal.classList.remove('open');
+        DOMElements.mainContainer.setAttribute('aria-hidden', 'false');
+    }
+    
+    /**
+     * Adjusts the font size within the poem reader.
+     * @param {number} delta - The amount to change the font size by.
+     */
+    function adjustFontSize(delta) {
+        state.fontSize = Math.max(0.8, Math.min(2.0, state.fontSize + delta));
+        DOMElements.poemBody.style.fontSize = `${state.fontSize}rem`;
+    }
+
+    /** Saves a poem from the composer to the main array and localStorage. */
+    function saveComposedPoem() {
+        const title = DOMElements.composeTitleInput.value.trim();
+        const body = DOMElements.composeBodyTextarea.value.trim();
+
+        if (!title || !body) {
+            showNotification('Please provide a title and some content.', 'error');
+            return;
+        }
+
+        const newPoem = {
+            id: 'user_' + Date.now(),
+            title: title,
+            lines: body.split('\n').filter(line => line.trim() !== ''),
+            tags: ['composed', 'user-created']
+        };
+
+        POEMS.push(newPoem);
+        saveUserPoems();
+        populateTagFilter();
+        renderPoemGrid(POEMS);
+        showNotification(`'${title}' has been saved to the archives!`);
+        closeComposer();
+    }
+
+
+    //=================================
+    // 6. Gemini API Integrations
+    //=================================
+
+    /**
+     * Handles the poem generation request.
+     */
+    async function handlePoemGeneration() {
+        const prompt = DOMElements.geminiPromptInput.value.trim();
+        if (!prompt) {
+            showNotification('Please enter a prompt for the poem.', 'error');
+            return;
+        }
+
+        setButtonLoading(DOMElements.generatePoemBtn, true);
+
+        const systemPrompt = "You are Aether, an eloquent and thoughtful poet residing in the digital cosmos. Your style is evocative, rich with imagery, and emotionally resonant. You can write in various forms, from free verse to more structured stanzas. When given a prompt, create a short, beautiful poem (around 4-8 lines) that captures its essence.";
+        
+        try {
+            const generatedText = await callGemini(prompt, systemPrompt);
+            DOMElements.composeBodyTextarea.value = generatedText;
+            if (DOMElements.composeTitleInput.value.trim() === '') {
+                DOMElements.composeTitleInput.value = prompt.split(' ').slice(0, 3).join(' ') + '...';
+            }
+        } catch (error) {
+            console.error("Gemini poem generation failed:", error);
+            showNotification('Failed to generate poem. Please try again.', 'error');
+        } finally {
+            setButtonLoading(DOMElements.generatePoemBtn, false);
+        }
+    }
+
+    /**
+     * Handles the poem analysis request.
+     */
+    async function handlePoemAnalysis() {
+        if (!state.activePoem) return;
+
+        setButtonLoading(DOMElements.analyzePoemBtn, true);
+        DOMElements.geminiAnalysisContainer.innerHTML = '<p>Analyzing...</p>';
+
+        const systemPrompt = "You are a literary analyst with a deep understanding of poetry. Your analysis is concise, insightful, and focuses on the emotional and thematic core of a text. When given a poem, provide its central theme, dominant mood, and a list of its three most striking images or metaphors, according to the provided JSON schema.";
+        const poemText = `${state.activePoem.title}\n\n${state.activePoem.lines.join('\n')}`;
+        
+        const schema = {
+            type: "OBJECT",
+            properties: {
+                theme: { type: "STRING", description: "The central theme or message of the poem in a single, concise sentence." },
+                mood: { type: "STRING", description: "The dominant mood or feeling evoked (e.g., melancholic, hopeful, serene)." },
+                key_imagery: {
+                    type: "ARRAY",
+                    items: { type: "STRING" },
+                    description: "A list of the two or three most powerful images or metaphors used."
+                }
+            },
+            required: ["theme", "mood", "key_imagery"]
+        };
+
+        try {
+            const analysisJson = await callGemini(poemText, systemPrompt, schema);
+            displayPoemAnalysis(JSON.parse(analysisJson));
+        } catch (error) {
+            console.error("Gemini analysis failed:", error);
+            DOMElements.geminiAnalysisContainer.innerHTML = '<p style="color: #ff8a8a;">Analysis failed. Please try again.</p>';
+        } finally {
+            setButtonLoading(DOMElements.analyzePoemBtn, false);
+        }
+    }
+    
+    /**
+     * Displays the structured analysis from Gemini.
+     * @param {object} analysis - The parsed JSON object from the API.
+     */
+    function displayPoemAnalysis(analysis) {
+        const { theme, mood, key_imagery } = analysis;
+        const analysisHTML = `
+            <p><strong>Theme:</strong> ${escapeHTML(theme)}</p>
+            <p><strong>Mood:</strong> ${escapeHTML(mood)}</p>
+            <p><strong>Key Imagery:</strong></p>
+            <ul>
+                ${key_imagery.map(item => `<li>${escapeHTML(item)}</li>`).join('')}
+            </ul>
+        `;
+        DOMElements.geminiAnalysisContainer.innerHTML = analysisHTML;
+    }
+
+    /**
+     * Generic function to call the Gemini API with exponential backoff.
+     * @param {string} userQuery - The user's prompt or text.
+     * @param {string} systemPrompt - The system instruction for the model.
+     * @param {object|null} responseSchema - Optional JSON schema for structured output.
+     * @returns {Promise<string>} - The text response from the model.
+     */
+    async function callGemini(userQuery, systemPrompt, responseSchema = null) {
+        const apiKey = ""; // Canvas will provide this.
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        const payload = {
+            contents: [{ parts: [{ text: userQuery }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+        };
+        
+        if (responseSchema) {
+            payload.generationConfig = {
+                responseMimeType: "application/json",
+                responseSchema: responseSchema
+            };
+        }
+
+        let attempts = 0;
+        while (attempts < 5) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                if (result.candidates && result.candidates[0].content.parts[0].text) {
+                    return result.candidates[0].content.parts[0].text;
+                } else {
+                    throw new Error("Invalid response structure from Gemini API");
+                }
+            } catch (error) {
+                attempts++;
+                if (attempts >= 5) throw error;
+                await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempts) * 1000));
+            }
+        }
+    }
+
+
+    //=================================
+    // 7. Audio & Visualizer Logic
+    //=================================
+    
+    /** Sets up the audio context and analyser for the visualizer. */
+    function setupAudioVisualizer() {
+        for(let i = 0; i < 64; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'visualizer-bar';
+            DOMElements.audioVisualizer.appendChild(bar);
+        }
+    }
+
+    /** Initializes and toggles audio playback. */
+    function toggleAudio() {
+      if (!state.sound) {
+        state.sound = new Howl({
+          src: TRACKS[0].src, html5: true, loop: true, volume: 0.5,
+          onplay: () => {
+              state.isPlaying = true; DOMElements.playPauseBtn.textContent = "Pause Ambience";
+              requestAnimationFrame(updateAudioState);
+              if (!state.audioContext) {
+                  state.audioContext = Howl.ctx; state.analyser = state.audioContext.createAnalyser();
+                  state.analyser.fftSize = 128; Howler.masterGain.connect(state.analyser);
+              }
+          },
+          onpause: () => { state.isPlaying = false; DOMElements.playPauseBtn.textContent = "Play Ambience"; },
+          onend: () => { state.isPlaying = false; DOMElements.playPauseBtn.textContent = "Play Ambience"; },
+        });
+      }
+      state.isPlaying ? state.sound.pause() : state.sound.play();
+    }
+
+    /** Updates the progress bar, time labels, and visualizer. */
+    function updateAudioState() {
+      if (!state.sound || !state.isPlaying) return;
+      const seek = state.sound.seek() || 0; const duration = state.sound.duration() || 0;
+      DOMElements.timeCurrent.textContent = formatTime(seek); DOMElements.timeDuration.textContent = formatTime(duration);
+      DOMElements.progressBarFill.style.width = `${(seek / duration) * 100 || 0}%`;
+      if (state.analyser) {
+          const bufferLength = state.analyser.frequencyBinCount;
+          const dataArray = new Uint8Array(bufferLength);
+          state.analyser.getByteFrequencyData(dataArray);
+          const bars = DOMElements.audioVisualizer.children;
+          for (let i = 0; i < bufferLength; i++) {
+              if (bars[i]) { bars[i].style.height = `${(dataArray[i] / 255) * 100}%`; }
+          }
+      }
+      requestAnimationFrame(updateAudioState);
+    }
+    
+    /** Seeks to a new position in the audio track based on click position. */
+    function seekAudio(e) {
+        if (!state.sound) return;
+        const rect = DOMElements.progressBarWrapper.getBoundingClientRect();
+        const percent = (e.clientX - rect.left) / rect.width;
+        state.sound.seek(state.sound.duration() * percent);
+    }
+
+
+    //=================================
+    // 8. Utility & Helper Functions
+    //=================================
+
+    /** Handles global keydown events for shortcuts. */
+    function handleGlobalKeys(e) {
+      if (e.key === 'Escape') {
+        if (state.isReaderOpen) closeReader();
+        if (state.isComposerOpen) closeComposer();
+      }
+      if (e.key === ' ' && state.isReaderOpen) {
+        e.preventDefault(); toggleAudio();
+      }
+    }
+    
+    /** Exports the currently active poem to a PDF document. */
+    async function exportPoemToPDF() {
+      if (!state.activePoem) return; const { jsPDF } = window.jspdf;
+      const doc = new jsPDF(); doc.setFont( 'Times', 'Roman');
+      doc.setFontSize(22); doc.text(state.activePoem.title, 10, 20);
+      doc.setFontSize(12); doc.text(state.activePoem.lines, 10, 40);
+      doc.save(`${state.activePoem.title.replace(/\s/g, '_')}.pdf`);
+      showNotification('PDF exported successfully.');
+    }
+    
+    /** Copies a simulated link to the active poem to the clipboard. */
+    function copyPoemLink() {
+        if (!state.activePoem) return;
+        const url = `${window.location.href.split('#')[0]}#poem=${state.activePoem.id}`;
+        navigator.clipboard.writeText(url).then(() => {
+            showNotification('Link copied to clipboard.');
+        }).catch(() => { showNotification('Failed to copy link.', 'error'); });
+    }
+
+    /** Displays a custom notification message. */
+    function showNotification(message, type = 'success') {
+      DOMElements.notificationBar.textContent = message;
+      gsap.fromTo(DOMElements.notificationBar, 
+        { y: '150%' }, 
+        { y: '0%', duration: 0.5, ease: 'power3.out', onComplete: () => {
+            gsap.to(DOMElements.notificationBar, { y: '150%', delay: 3, duration: 0.5, ease: 'power3.in' });
+        }}
+      );
+    }
+    
+    /** Changes the accent color of the UI. */
+    function changeThemeColor(e) {
+        const hue = e.target.dataset.hue;
+        document.documentElement.style.setProperty('--accent-primary-hue', hue);
+    }
+
+    /** Escapes HTML to prevent XSS. */
+    function escapeHTML(str) {
+      return str.replace(/[&<>'"]/g, tag => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+      }[tag] || tag));
+    }
+    
+    /** Formats seconds into a MM:SS time string. */
+    function formatTime(secs = 0) {
+      const minutes = Math.floor(secs / 60); const seconds = Math.floor(secs % 60);
+      return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+    }
+    
+    /** Sets the loading state of a button. */
+    function setButtonLoading(button, isLoading) {
+        button.disabled = isLoading;
+        button.classList.toggle('loading', isLoading);
+    }
+    
+    /** Loads user poems from localStorage. */
+    function loadUserPoems() {
+        try {
+            const userPoems = JSON.parse(localStorage.getItem('aetherium_user_poems') || '[]');
+            POEMS = [...POEMS, ...userPoems.filter(up => !POEMS.some(p => p.id === up.id))];
+        } catch (e) {
+            console.error("Failed to load user poems:", e);
+        }
+    }
+    
+    /** Saves user-created poems to localStorage. */
+    function saveUserPoems() {
+        try {
+            const userPoems = POEMS.filter(p => p.id.startsWith('user_'));
+            localStorage.setItem('aetherium_user_poems', JSON.stringify(userPoems));
+        } catch (e) {
+            console.error("Failed to save user poems:", e);
+        }
+    }
+
+    //=================================
+    // 9. Canvas Background Animation
+    //=================================
+    function animateCosmicBackground() {
+      const ctx = DOMElements.starfieldCanvas.getContext('2d');
+      let width, height, stars = [], particles = [];
+      const STAR_COUNT = window.innerWidth > 768 ? 400 : 150;
+      const PARTICLE_COUNT = window.innerWidth > 768 ? 100 : 40;
+
+      function resize() {
+        width = DOMElements.starfieldCanvas.width = window.innerWidth;
+        height = DOMElements.starfieldCanvas.height = window.innerHeight;
+        stars = []; particles = [];
+        for (let i = 0; i < STAR_COUNT; i++) stars.push(new Star());
+        for (let i = 0; i < PARTICLE_COUNT; i++) particles.push(new Particle());
+      }
+
+      class Star {
+        constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.z = Math.random() * width; this.pz = this.z; }
+        update() { this.z -= 1.5; if (this.z < 1) { this.z = width; this.x = Math.random() * width; this.y = Math.random() * height; this.pz = this.z; } }
+        draw() {
+          const k = 128 / this.z; const sx = (this.x - width / 2) * k + width / 2; const sy = (this.y - height / 2) * k + height / 2;
+          const r = Math.max(0.1, (1 - this.z / width) * 2); const alpha = 1 - this.z / width;
+          ctx.beginPath(); ctx.fillStyle = `rgba(225, 227, 255, ${alpha})`; ctx.arc(sx, sy, r, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      
+      class Particle {
+          constructor() { this.x = Math.random() * width; this.y = Math.random() * height; this.vx = (Math.random() - 0.5) * 0.1; this.vy = (Math.random() - 0.5) * 0.1; this.radius = Math.random() * 1.5; }
+          update() { this.x += this.vx; this.y += this.vy; if (this.x < 0 || this.x > width) this.vx *= -1; if (this.y < 0 || this.y > height) this.vy *= -1; }
+          draw() { ctx.beginPath(); ctx.fillStyle = `hsla(var(--accent-primary-hue), 100%, 80%, 0.3)`; ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); ctx.fill(); }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, width, height); stars.forEach(s => { s.update(); s.draw(); }); particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+      }
+
+      window.addEventListener('resize', resize); resize();
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      if (!motionQuery.matches) { animate(); }
+    }
+
+    //=================================
+    // 10. Application Start
+    //=================================
+    initialize();
+  });
+  </script>
+
+</body>
+</html>
+
